@@ -25,7 +25,7 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
     discount: initialUser ? 10 : 0,
   });
 
-  // Initialize auth state on mount (only if initialUser not provided)
+  // Initialize auth state on mount
   useEffect(() => {
     // Skip auth initialization on /login page to avoid requiring auth token cookie
     if (typeof window !== 'undefined' && window.location.pathname === '/login') {
@@ -39,15 +39,35 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
       return;
     }
 
-    // If initialUser was provided by server and is not null, we already have auth state
-    if (initialUser) {
+    // initialUser === undefined → server didn't provide any info, need to fetch client-side
+    // initialUser is User → server provided authenticated user, no need to fetch
+    // initialUser === null → server said "no cookie", but we still want to check client-side
+    // because the cookie could have been set after SSR (e.g., login via Playwright mock)
+    if (initialUser === undefined) {
+      // Server gave us no info → fetch client-side
+      initializeAuth();
       return;
     }
 
+    if (initialUser) {
+      // Server gave us authenticated user → set state with discount
+      setState({
+        user: initialUser,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+        discount: 10,
+      });
+      return;
+    }
+
+    // initialUser === null → server said "no cookie", but we still try client-side
+    // This allows Playwright mocks to work after page.reload()
     initializeAuth();
   }, [initialUser]);
 
   const initializeAuth = async () => {
+    setState(prev => ({ ...prev, isLoading: true }));
     try {
       // Get current user
       const user = await getCurrentUser();

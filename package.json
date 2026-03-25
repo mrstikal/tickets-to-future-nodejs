@@ -8,6 +8,8 @@
     "dev": "concurrently --names api,web --prefix name --prefix-colors cyan,magenta --kill-others-on-fail \"npm run dev:api\" \"npm run dev:web\"",
     "dev:api": "tsx watch apps/api/src/index.ts",
     "dev:web": "npm --prefix apps/web run dev",
+    "kill-ports": "npx kill-port 3001 3000",
+    "dev:fresh": "npm run kill-ports && npm run dev",
     "lint": "npm run lint:api && npm run lint:web",
     "lint:fix": "npm run lint:api:fix && npm run lint:web:fix",
     "lint:api": "eslint \"apps/api/src/**/*.{ts,tsx}\" \"scripts/**/*.{ts,js}\" --max-warnings=0",

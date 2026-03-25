@@ -80,7 +80,7 @@ export default function EventsList({ initialItems, initialMeta, periodStartYear,
 
   const renderTicketCard = (ticket: Ticket) => {
     const discountedPrice = calculateDiscountedPrice(ticket.price);
-    const hasDiscount = isAuthenticated && discount > 0;
+    const hasDiscount = discount > 0;
     
     return (
       <article key={ticket.id} className="surface overflow-hidden">

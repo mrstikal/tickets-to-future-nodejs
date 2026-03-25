@@ -117,7 +117,7 @@ export function TicketDetailClient({
   };
 
   const discountedPrice = calculateDiscountedPrice(ticket.price);
-  const hasDiscount = isAuthenticated && discount > 0;
+  const hasDiscount = discount > 0;
 
   return (
     <div className="surface p-7">

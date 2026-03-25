@@ -287,11 +287,26 @@ Start the local infrastructure:
 docker compose up -d
 ```
 
+This command starts **only the infrastructure containers** (Postgres, Redis, RabbitMQ). The API and web frontend are excluded by default (they are behind the `app` profile). If you want to run the full application stack in Docker (including API and web), use:
+
+```bash
+docker compose --profile app up -d
+```
+
 Useful commands:
 - `docker compose ps` — shows container status and healthchecks (Postgres/RabbitMQ/Redis have healthchecks configured)
 - `docker compose logs -f postgres` — follow Postgres logs
 - `docker compose down` — stop containers
 - `docker compose down -v` — stop containers and remove named volumes (useful to reset DB data)
+
+**Troubleshooting port conflicts**
+If you see `EADDRINUSE: address already in use :::3000` when running `npm run dev`, it's likely because the Docker API container is already occupying port 3000. Stop the Docker stack or remove the API container:
+
+```bash
+docker compose down
+```
+
+Then you can run `npm run dev` again.
 
 Health endpoint checks
 ----------------------
@@ -412,6 +427,7 @@ npm run e2e        # runs Playwright tests
 ---
 
 ## Admin Dashboard
+
 
 Login: `admin@example.com` / `admin123`
 
