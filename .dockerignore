@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+.next
+coverage
+.env
+infra/postgres
+scripts/demo/output
+apps/web/public/assets
+**/*.log
+*.tgz

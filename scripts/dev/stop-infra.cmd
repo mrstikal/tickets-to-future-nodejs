@@ -1,0 +1,3 @@
+@echo off
+echo Stopping infra...
+docker compose down

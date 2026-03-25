@@ -1,0 +1,3 @@
+@echo off
+echo Resetting infra (stopping and removing volumes)...
+docker compose down -v
