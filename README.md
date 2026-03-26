@@ -12,7 +12,7 @@ This demonstration application covers the complete flow from browsing ticket cat
 ## Architecture
 
 ```
-├── Frontend (Next.js 15)
+├── Frontend (Next.js 16)
 │   ├── Ticket catalog, detail view, cart, checkout
 │   ├── Admin dashboard (statistics, CRUD operations)
 │   └── Real-time updates via WebSocket
@@ -40,14 +40,14 @@ This demonstration application covers the complete flow from browsing ticket cat
 - **Queue**: RabbitMQ 3 – topic exchange `tickets.events`, queues `order.confirmed.queue`, `hold.expired.queue` with DLX/DLQ
 - **WebSocket**: `ws` library, endpoint `/ws/v1`, channel subscription model
 - **Auth**: JWT (access + refresh tokens), bcrypt, role-based (admin)
-- **Testing**: Vitest (unit), `supertest` (integration)
+- **Testing**: Vitest (unit)
 - **Logging**: Custom `logger` with log levels
 
 ### Frontend
-- **Framework**: Next.js 15 (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **Styling**: Tailwind CSS, `recharts` for charts
 - **State management**: React hooks, Context (auth)
-- **WebSocket hooks**: `useTicketWebSocket`, `useSessionWebSocket`
+- **WebSocket hooks**: `useTicketWebsocket`, `useSessionWebsocket`
 - **Testing**: Vitest + React Testing Library, Playwright (E2E)
 - **UI components**: Custom components (Header, Modal, AvatarUpload, …)
 
@@ -87,8 +87,9 @@ This demonstration application covers the complete flow from browsing ticket cat
 ### RabbitMQ DLX/DLQ (Dead-Letter Exchange/Queue)
 - Topic exchange `tickets.events`
 - Queue `order.confirmed.queue` → consumer `order-consumer` (log + mock notifications)
-- Queue `hold.expired.queue` → consumer `hold-consumer` (mark hold as expired)
-- DLX `tickets.events.dlx` with 5min TTL → automatic retry of failed messages
+- Queue `hold.expired.queue` → consumer `hold-consumer` (log hold expiration)
+- DLX `tickets.dlx` with 5min TTL → automatic retry of failed messages
+- Dead-letter queues: `order.confirmed.dlq`, `hold.expired.dlq`
 
 ### WebSocket Broadcaster
 - Events:
@@ -101,7 +102,7 @@ This demonstration application covers the complete flow from browsing ticket cat
 
 ### Rate Limiting
 - Redis-backed, currently for login endpoint only
-- Configurable via env: `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX_REQUESTS`
+- Hardcoded: 5 attempts per 15 minutes (not configurable via env)
 
 ### CORS Configuration
 - Allowed origins via env `ALLOWED_ORIGINS`
@@ -134,24 +135,48 @@ image_assets (1) ← ticket_types (1) ← ticket_events (N)
 ## API Endpoints (Selection)
 
 ### Public
-- `GET /api/v1/tickets` – list tickets with pagination, filtering, sorting
+- `GET /api/v1/tickets` – list tickets
 - `GET /api/v1/tickets/:id` – ticket detail
 - `POST /api/v1/holds` – create reservation
+- `GET /api/v1/holds/session/:sessionId` – list holds by session
+- `GET /api/v1/holds/:id` – get hold detail
 - `DELETE /api/v1/holds/:id` – release reservation
 - `POST /api/v1/orders` – create order from holds
 - `GET /api/v1/orders/:id` – order detail
-- `GET /api/v1/events/:period` – list events (today, week, month, future)
+- `GET /api/v1/events/groups` – list events grouped by period
+- `GET /api/v1/events` – list events by date range (startYear, endYear, page, limit)
 - `POST /api/v1/auth/login` – login (JWT)
+- `POST /api/v1/auth/signup` – sign up
 - `POST /api/v1/auth/refresh` – token refresh
+- `GET /api/v1/auth/me` – get current user
+- `POST /api/v1/auth/logout` – logout
 
 ### Admin
-- `GET /api/v1/admin/stats` – statistics (revenue, sold tickets, top/least selling)
+- `GET /api/v1/admin/stats/overview` – statistics overview (revenue, sold tickets)
+- `GET /api/v1/admin/stats/top-selling` – top selling tickets
+- `GET /api/v1/admin/stats/least-selling` – least selling tickets
+- `GET /api/v1/admin/filters/ticket-types` – ticket types for filtering
+- `GET /api/v1/admin/filters/ticket-events` – ticket events for filtering
+- `POST /api/v1/admin/reset-login-limit` – reset login rate limit for IP
 - `GET /api/v1/admin/orders` – list orders with filters
+- `GET /api/v1/admin/orders/:id` – order detail
+- `POST /api/v1/admin/orders/:id/cancel` – cancel order
+- `PATCH /api/v1/admin/orders/:id/total-price` – update order total price
 - `GET /api/v1/admin/ticket-types` – CRUD for ticket types
 - `POST /api/v1/admin/ticket-types` – create ticket type
+- `GET /api/v1/admin/ticket-types/:id` – get ticket type
 - `PUT /api/v1/admin/ticket-types/:id` – update ticket type
+- `DELETE /api/v1/admin/ticket-types/:id` – delete ticket type
+- `DELETE /api/v1/admin/ticket-types/:id/force` – force delete ticket type
+- `GET /api/v1/admin/ticket-types/:id/has-events` – check if ticket type has events
 - `GET /api/v1/admin/ticket-events` – CRUD for ticket events
-- `POST /api/v1/admin/image-assets` – upload image
+- `POST /api/v1/admin/ticket-events` – create ticket event
+- `GET /api/v1/admin/ticket-events/:id` – get ticket event
+- `PUT /api/v1/admin/ticket-events/:id` – update ticket event
+- `DELETE /api/v1/admin/ticket-events/:id` – delete ticket event
+- `DELETE /api/v1/admin/ticket-events/:id/force` – force delete ticket event
+- `GET /api/v1/admin/ticket-events/:id/has-holds-or-orders` – check if event has holds or orders
+- `POST /api/v1/admin/image-assets/upload` – upload image
 
 ---
 
@@ -160,40 +185,80 @@ image_assets (1) ← ticket_types (1) ← ticket_events (N)
 ### Connection
 `ws://localhost:3000/ws/v1`
 
+### Authentication
+- WebSocket connections can be authenticated via `auth_token` cookie
+- Authenticated clients receive order status updates and can subscribe to user-specific channels
+
 ### Subscription
 After connection, client sends:
 ```json
 {
   "type": "subscribe",
-  "channel": "ticket_updates"
+  "channels": ["tickets", "ticket:<ticketId>", "session.<sessionId>"]
 }
 ```
+
+### Channel Types
+- `tickets` – global ticket availability updates
+- `ticket:<ticketId>` – updates for specific ticket
+- `session.<sessionId>` – hold updates for specific session
 
 ### Received Events
 ```json
 {
-  "eventType": "ticket.availability.updated",
+  "type": "ticket.availability.updated",
   "ticketId": "uuid",
   "availableQuantity": 5,
-  "soldQuantity": 10
+  "soldQuantity": 10,
+  "activeHolds": 3,
+  "timestamp": "2026-03-26T16:40:00Z"
 }
 ```
 
 ```json
 {
-  "eventType": "ticket.hold.expired",
+  "type": "ticket.hold.expired",
   "ticketId": "uuid",
   "holdId": "uuid",
-  "sessionId": "session123"
+  "timestamp": "2026-03-26T16:40:00Z"
 }
 ```
 
 ```json
 {
-  "eventType": "order.status.updated",
+  "type": "order.status.updated",
   "orderId": "uuid",
   "status": "confirmed",
-  "orderNumber": "ORD-2026-00042"
+  "timestamp": "2026-03-26T16:40:00Z"
+}
+```
+
+```json
+{
+  "type": "hold.updated",
+  "sessionId": "session123",
+  "hold": {
+    "id": "uuid",
+    "ticketId": "uuid",
+    "status": "active",
+    "expiresAt": "2026-03-26T16:45:00Z"
+  },
+  "timestamp": "2026-03-26T16:40:00Z"
+}
+```
+
+```json
+{
+  "type": "connection.ready",
+  "isAuthenticated": true,
+  "timestamp": "2026-03-26T16:40:00Z"
+}
+```
+
+```json
+{
+  "type": "pong",
+  "timestamp": "2026-03-26T16:40:00Z"
 }
 ```
 
@@ -236,10 +301,11 @@ After connection, client sends:
 |------|-------|-----|
 | `tickets:list` | Cache for ticket list | 60s |
 | `ticket:detail:{id}` | Cache for ticket detail | 30s |
-| `events:{period}` | Cache for events (today/week/month/future) | 60s |
-| `admin:stats:*` | Cache for admin statistics | 30s |
-| `rate_limit:{ip}:login` | Rate limit for login | 1min |
-| `hold:{id}` | Temporary reservation (optional) | HOLD_TTL_SECONDS |
+| `events:groups` | Cache for events grouped by period | 60s |
+| `events:range:{startYear}-{endYear}:p{page}:l{limit}` | Cache for paginated events by date range | 60s |
+| `admin:stats:*` | Cache for admin statistics (overview, top-selling, least-selling) | 300s |
+| `admin:filters:*` | Cache for admin filter options (ticket-types, ticket-events) | 3600s |
+| `rate_limit:{ip}:login` | Rate limit for login (5 attempts per 15 minutes) | 900s |
 
 ---
 
@@ -380,10 +446,49 @@ npm run dev:web      # frontend only
 
 ## Database Management
 
+### Initial Setup
 ```bash
-npm run db:reset            # drops and recreates schema + seed
-npm run db:seed:generate    # regenerates seed from Rick and Morty API
-npm run db:seed             # uses existing seed file
+npm run db:init            # creates schema and seeds initial data (infra/sql/000_init_and_seed.sql)
+npm run db:seed            # seeds demo data (infra/sql/001_seed.sql)
+```
+
+### Migrations
+```bash
+npm run db:migrate         # runs database migrations from infra/migrations/
+```
+
+### Reset & Recreate
+```bash
+npm run db:reset           # drops and recreates schema + seed
+npm run db:seed:generate   # regenerates seed from Rick and Morty API
+npm run db:drop            # drops all tables
+```
+
+### NPM Scripts Cheatsheet
+```bash
+# Development
+npm run dev                # start both API and web
+npm run dev:api            # start API only
+npm run dev:web            # start web only
+
+# Database
+npm run db:init            # initialize database
+npm run db:migrate         # run migrations
+npm run db:seed            # seed demo data
+npm run db:reset           # reset database
+
+# Testing
+npm test                   # run all unit tests
+npm run test:e2e           # run E2E tests
+npm run lint               # lint all projects
+npm run typecheck          # type check all projects
+
+# Demo scenarios
+npm run demo:a             # scenario A: load test
+npm run demo:b             # scenario B: race condition
+npm run demo:c             # scenario C: hold expiration
+npm run demo:d             # scenario D: async processing
+npm run demo:all           # run all scenarios
 ```
 
 ---
@@ -414,14 +519,20 @@ Output reports to `scripts/demo/output/` (JSON/CSV).
 
 ### Unit Tests (Vitest)
 ```bash
-npm test           # runs all tests
-npm run test:api   # backend tests only
-npm run test:web   # frontend tests only
+npm test                    # runs all unit tests (api + web)
+npm run test:unit:api       # backend unit tests only
+npm --prefix apps/web run test:unit  # frontend unit tests only
 ```
 
 ### E2E Tests (Playwright)
 ```bash
-npm run e2e        # runs Playwright tests
+npm run test:e2e            # runs Playwright E2E tests
+```
+
+### Linting & Type Checking
+```bash
+npm run lint                # lint all projects
+npm run typecheck           # type check all projects
 ```
 
 ---
@@ -429,7 +540,7 @@ npm run e2e        # runs Playwright tests
 ## Admin Dashboard
 
 
-Login: `admin@example.com` / `admin123`
+Login: `admin@tickets.local` / `Admin123!`
 
 Features:
 - **Statistics**: revenue chart (Recharts), sold tickets, top/least selling table
@@ -452,22 +563,24 @@ Features:
 
 ```env
 # Database
-POSTGRES_URL=postgresql://postgres:postgres@localhost:5432/tickets
-REDIS_URL=redis://localhost:6379
+POSTGRES_URL=postgresql://postgres:postgres@localhost:5439/tickets
+POSTGRES_POOL_MAX=20
+POSTGRES_POOL_IDLE_TIMEOUT_MS=30000
+REDIS_URL=redis://localhost:6380
 RABBITMQ_URL=amqp://guest:guest@localhost:5672
 
 # Application
 PORT=3000
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_WS_BASE_URL=ws://localhost:3000
+WEB_BASE_URL=http://localhost:3001
 ALLOWED_ORIGINS=http://localhost:3001,http://localhost:3000
 
 # Auth
 JWT_SECRET=your-secret-key
 JWT_REFRESH_SECRET=your-refresh-secret-key
-
-# Rate limiting
-RATE_LIMIT_WINDOW_MS=60000
-RATE_LIMIT_MAX_REQUESTS=5
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
 
 # Ticket holds
 HOLD_TTL_SECONDS=300
