@@ -1,6 +1,7 @@
 import { getDependenciesRuntime } from '../lib/dependencies-runtime';
 import { createOrdersRepository } from '../repositories/orders-repository';
 import { logger } from '../lib/logger';
+import { isValidUuid } from '../lib/validators';
 import type { Order, AdminOrder, ServiceResult, OrderStatus } from '../types/domain';
 
 function createValidationError<T>(
@@ -99,6 +100,10 @@ export async function listOrders(
 }
 
 export async function getOrderDetail(id: string): Promise<ServiceResult<Order>> {
+  if (!isValidUuid(id)) {
+    return createValidationError(400, 'INVALID_ID', 'Invalid order ID format.');
+  }
+
   const runtime = getDependenciesRuntime();
 
   if (!runtime.postgres) {
@@ -134,6 +139,10 @@ export async function getOrderDetail(id: string): Promise<ServiceResult<Order>> 
 }
 
 export async function cancelOrder(id: string): Promise<ServiceResult<Order>> {
+  if (!isValidUuid(id)) {
+    return createValidationError(400, 'INVALID_ID', 'Invalid order ID format.');
+  }
+
   const runtime = getDependenciesRuntime();
 
   if (!runtime.postgres) {
@@ -193,6 +202,10 @@ export async function updateOrderTotalPrice(
   id: string,
   totalPrice: number
 ): Promise<ServiceResult<Order>> {
+  if (!isValidUuid(id)) {
+    return createValidationError(400, 'INVALID_ID', 'Invalid order ID format.');
+  }
+
   const runtime = getDependenciesRuntime();
 
   if (!runtime.postgres) {

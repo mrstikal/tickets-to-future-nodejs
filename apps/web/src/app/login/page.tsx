@@ -12,15 +12,20 @@ export default function LoginPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, error, isAuthenticated } = useAuth();
+  const { login, error, isAuthenticated, user } = useAuth();
   const router = useRouter();
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/admin');
+      // Redirect to /admin only for admin users, otherwise go to homepage
+      if (user?.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +33,8 @@ export default function LoginPage() {
 
     try {
       await login(credentials);
-      router.push('/admin');
+      // The useEffect above will handle redirection based on user role
+      // No need to push here, as the auth context will update isAuthenticated and user
     } catch {
       // Error is handled by auth context
     } finally {

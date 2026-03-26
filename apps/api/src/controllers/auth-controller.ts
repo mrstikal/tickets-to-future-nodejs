@@ -69,20 +69,34 @@ export async function refreshTokenHandler(
   request: IncomingMessage,
   response: ServerResponse
 ): Promise<void> {
+  const cookieHeader = request.headers.cookie;
+
+  if (!cookieHeader) {
+    sendJson(response, 400, {
+      error: {
+        code: 'MISSING_TOKEN',
+        message: 'Refresh token cookie is required.',
+      },
+    });
+    return;
+  }
+
+  // Parse cookies
+  const cookies = parseCookies(cookieHeader);
+  const refreshTokenValue = cookies['refresh_token'];
+
+  if (!refreshTokenValue) {
+    sendJson(response, 400, {
+      error: {
+        code: 'MISSING_TOKEN',
+        message: 'Refresh token cookie is missing.',
+      },
+    });
+    return;
+  }
+
   try {
-    const body = await readJsonBody<{ refreshToken: string }>(request);
-
-    if (!body.refreshToken) {
-      sendJson(response, 400, {
-        error: {
-          code: 'MISSING_TOKEN',
-          message: 'Refresh token is required.',
-        },
-      });
-      return;
-    }
-
-    const result = await refreshToken(body.refreshToken);
+    const result = await refreshToken(refreshTokenValue);
 
     if ('error' in result) {
       sendJson(response, result.error.statusCode, {
@@ -99,7 +113,7 @@ export async function refreshTokenHandler(
     sendJson(response, 400, {
       error: {
         code: 'INVALID_REQUEST',
-        message: 'Invalid request body.',
+        message: 'Invalid request.',
       },
     });
   }

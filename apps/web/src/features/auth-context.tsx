@@ -61,9 +61,15 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
       return;
     }
 
-    // initialUser === null → server said "no cookie", but we still try client-side
-    // This allows Playwright mocks to work after page.reload()
-    initializeAuth();
+    // initialUser === null → server said "no cookie", no need to fetch client-side
+    // Playwright mocks should use initialUser === undefined to trigger client-side fetch
+    setState({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+      discount: 0,
+    });
   }, [initialUser]);
 
   const initializeAuth = async () => {

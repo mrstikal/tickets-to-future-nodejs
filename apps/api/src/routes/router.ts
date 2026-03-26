@@ -182,15 +182,15 @@ export function createRouter() {
     }, middleware: [requireAdmin] },
     { method: 'POST', pattern: /^\/api\/v1\/admin\/orders\/([^/]+)\/cancel$/, handler: async (req, res, params) => {
       const { cancelOrderHandler } = await import('../controllers/admin-orders-controller');
-      await cancelOrderHandler(req, res, params[0]);
+      await cancelOrderHandler(req, res, params);
     }, middleware: [requireAdmin] },
     { method: 'PATCH', pattern: /^\/api\/v1\/admin\/orders\/([^/]+)\/total-price$/, handler: async (req, res, params) => {
       const { updateOrderTotalPriceHandler } = await import('../controllers/admin-orders-controller');
-      await updateOrderTotalPriceHandler(req, res, params[0]);
+      await updateOrderTotalPriceHandler(req, res, params);
     }, middleware: [requireAdmin] },
     { method: 'GET', pattern: /^\/api\/v1\/admin\/orders\/([^/]+)$/, handler: async (req, res, params) => {
       const { getOrderDetailHandler } = await import('../controllers/admin-orders-controller');
-      await getOrderDetailHandler(req, res, params[0]);
+      await getOrderDetailHandler(req, res, params);
     }, middleware: [requireAdmin] },
 
     // Image assets upload

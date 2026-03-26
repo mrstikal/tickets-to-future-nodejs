@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { readJsonBody } from '../lib/read-json-body';
 import { sendJson } from '../lib/send-json';
 import { logger } from '../lib/logger';
+import { isValidUuid } from '../lib/validators';
 import {
   listOrders,
   getOrderDetail,
@@ -59,6 +60,16 @@ export async function getOrderDetailHandler(
   response: ServerResponse,
   id: string
 ): Promise<void> {
+  if (!isValidUuid(id)) {
+    sendJson(response, 400, {
+      error: {
+        code: 'INVALID_ID',
+        message: 'Invalid order ID format.',
+      },
+    });
+    return;
+  }
+
   try {
     const result = await getOrderDetail(id);
 
@@ -86,6 +97,16 @@ export async function cancelOrderHandler(
   response: ServerResponse,
   id: string
 ): Promise<void> {
+  if (!isValidUuid(id)) {
+    sendJson(response, 400, {
+      error: {
+        code: 'INVALID_ID',
+        message: 'Invalid order ID format.',
+      },
+    });
+    return;
+  }
+
   try {
     const result = await cancelOrder(id);
 
@@ -113,6 +134,16 @@ export async function updateOrderTotalPriceHandler(
   response: ServerResponse,
   id: string
 ): Promise<void> {
+  if (!isValidUuid(id)) {
+    sendJson(response, 400, {
+      error: {
+        code: 'INVALID_ID',
+        message: 'Invalid order ID format.',
+      },
+    });
+    return;
+  }
+
   try {
     const body = await readJsonBody<{ totalPrice?: unknown }>(request);
 

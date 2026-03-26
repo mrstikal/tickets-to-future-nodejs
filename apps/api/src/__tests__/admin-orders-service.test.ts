@@ -153,6 +153,16 @@ describe('admin-orders-service', () => {
   });
 
   describe('getOrderDetail', () => {
+    it('returns error if id is not a valid UUID', async () => {
+      const result = await adminOrdersService.getOrderDetail('8');
+      expect('error' in result).toBe(true);
+      if ('error' in result) {
+        expect(result.error?.statusCode).toBe(400);
+        expect(result.error?.code).toBe('INVALID_ID');
+        expect(result.error?.message).toBe('Invalid order ID format.');
+      }
+    });
+
     it('returns error if postgres not available', async () => {
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: null, redis: null, rabbitmq: null });
       const result = await adminOrdersService.getOrderDetail('order-1');
@@ -219,6 +229,16 @@ describe('admin-orders-service', () => {
   });
 
   describe('cancelOrder', () => {
+    it('returns error if id is not a valid UUID', async () => {
+      const result = await adminOrdersService.cancelOrder('8');
+      expect('error' in result).toBe(true);
+      if ('error' in result) {
+        expect(result.error?.statusCode).toBe(400);
+        expect(result.error?.code).toBe('INVALID_ID');
+        expect(result.error?.message).toBe('Invalid order ID format.');
+      }
+    });
+
     it('returns error if postgres not available', async () => {
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: null, redis: null, rabbitmq: null });
       const result = await adminOrdersService.cancelOrder('order-1');
@@ -392,6 +412,16 @@ describe('admin-orders-service', () => {
   });
 
   describe('updateOrderTotalPrice', () => {
+    it('returns error if id is not a valid UUID', async () => {
+      const result = await adminOrdersService.updateOrderTotalPrice('8', 1000);
+      expect('error' in result).toBe(true);
+      if ('error' in result) {
+        expect(result.error?.statusCode).toBe(400);
+        expect(result.error?.code).toBe('INVALID_ID');
+        expect(result.error?.message).toBe('Invalid order ID format.');
+      }
+    });
+
     it('returns error if postgres not available', async () => {
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: null, redis: null, rabbitmq: null });
       const result = await adminOrdersService.updateOrderTotalPrice('order-1', 1000);
