@@ -422,33 +422,31 @@ test.describe('Admin Orders', () => {
 
     // Filter by status "Confirmed"
     const statusCombobox = page.getByRole('combobox', { name: /Status/i });
+    
+    // Register response listener BEFORE opening dropdown
+    const confirmedResponsePromise = page.waitForResponse((r) => {
+      const url = r.url();
+      return (
+        url.includes('/api/v1/admin/orders') &&
+        r.request().method() === 'GET' &&
+        url.includes('status=confirmed')
+      );
+    });
+    
     await statusCombobox.click();
     await page.waitForSelector('[role="listbox"]');
+    await page.getByRole('option', { name: 'Confirmed' }).click();
     
-    // Wait for GET request with status=confirmed BEFORE clicking
-    await Promise.all([
-      page.waitForResponse((r) => {
-        const url = r.url();
-        return (
-          url.includes('/api/v1/admin/orders') &&
-          r.request().method() === 'GET' &&
-          url.includes('status=confirmed')
-        );
-      }),
-      page.getByRole('option', { name: 'Confirmed' }).click(),
-    ]);
+    // Wait for the response
+    await confirmedResponsePromise;
 
     // Verify only confirmed order is visible
     await expect(page.locator('table')).toContainText('ORD-F01');
     await expect(page.locator('table')).not.toContainText('ORD-F02');
 
     // Clear filter
-    await statusCombobox.click();
-    await page.waitForSelector('[role="listbox"]');
-    await page.getByRole('option', { name: 'All statuses' }).click();
-
-    // Wait for GET without status filter
-    await page.waitForResponse((r) => {
+    // Register response listener BEFORE opening dropdown
+    const clearResponsePromise = page.waitForResponse((r) => {
       const url = r.url();
       return (
         url.includes('/api/v1/admin/orders') &&
@@ -456,6 +454,13 @@ test.describe('Admin Orders', () => {
         !url.includes('status=')
       );
     });
+    
+    await statusCombobox.click();
+    await page.waitForSelector('[role="listbox"]');
+    await page.getByRole('option', { name: 'All statuses' }).click();
+    
+    // Wait for the response
+    await clearResponsePromise;
 
     // Both orders should be visible again
     await expect(page.locator('table')).toContainText('ORD-F01');

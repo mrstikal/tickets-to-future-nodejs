@@ -384,10 +384,6 @@ export default function CartPage() {
           )}
         </>
       )}
-
-      <Link href="/tickets" className="text-sky-400 hover:text-sky-300 text-lg font-medium block text-center mt-8">
-        ← Back to Tickets
-      </Link>
     </main>
   );
 }

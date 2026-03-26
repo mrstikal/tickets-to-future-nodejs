@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useAuth } from '@/features/auth-context';
 import { calculateDiscountedPrice } from '@/lib/discount';
 import type { Order } from '@/types/tickets';
@@ -41,13 +40,6 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
 
   return (
     <main className="container-app py-12">
-      <Link
-        href="/tickets"
-        className="mb-6 inline-block text-sky-300 hover:text-sky-200"
-      >
-        ← Back to tickets
-      </Link>
-
       <section className="surface max-w-3xl p-7">
         <p className="kicker">Order detail</p>
         <h1 className="mb-5 text-4xl font-black text-white">#{order.orderNumber}</h1>

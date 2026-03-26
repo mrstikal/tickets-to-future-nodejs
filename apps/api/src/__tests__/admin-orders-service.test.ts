@@ -165,7 +165,7 @@ describe('admin-orders-service', () => {
 
     it('returns error if postgres not available', async () => {
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: null, redis: null, rabbitmq: null });
-      const result = await adminOrdersService.getOrderDetail('order-1');
+      const result = await adminOrdersService.getOrderDetail('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(503);
@@ -176,7 +176,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.findById).mockResolvedValue(null);
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.getOrderDetail('nonexistent');
+      const result = await adminOrdersService.getOrderDetail('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22');
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(404);
@@ -186,7 +186,7 @@ describe('admin-orders-service', () => {
 
     it('returns order detail when found', async () => {
       const order: Order = {
-        id: 'order-1',
+        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         orderNumber: 'ORD-123',
         status: 'confirmed',
         email: 'user@example.com',
@@ -209,7 +209,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.findById).mockResolvedValue(order);
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.getOrderDetail('order-1');
+      const result = await adminOrdersService.getOrderDetail('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
       expect('data' in result).toBe(true);
       if ('data' in result) {
         expect(result.data).toEqual(order);
@@ -220,7 +220,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.findById).mockRejectedValue(new Error('DB error'));
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.getOrderDetail('order-1');
+      const result = await adminOrdersService.getOrderDetail('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(500);
@@ -241,7 +241,7 @@ describe('admin-orders-service', () => {
 
     it('returns error if postgres not available', async () => {
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: null, redis: null, rabbitmq: null });
-      const result = await adminOrdersService.cancelOrder('order-1');
+      const result = await adminOrdersService.cancelOrder('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(503);
@@ -252,7 +252,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.findById).mockResolvedValue(null);
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.cancelOrder('nonexistent');
+      const result = await adminOrdersService.cancelOrder('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22');
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(404);
@@ -262,7 +262,7 @@ describe('admin-orders-service', () => {
 
     it('returns error if order already cancelled', async () => {
       const cancelledOrder: Order = {
-        id: 'order-1',
+        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         orderNumber: 'ORD-123',
         status: 'cancelled',
         email: 'user@example.com',
@@ -277,7 +277,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.findById).mockResolvedValue(cancelledOrder);
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.cancelOrder('order-1');
+      const result = await adminOrdersService.cancelOrder('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(409);
@@ -288,7 +288,7 @@ describe('admin-orders-service', () => {
 
     it('returns error if order already expired', async () => {
       const expiredOrder: Order = {
-        id: 'order-1',
+        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         orderNumber: 'ORD-123',
         status: 'expired',
         email: 'user@example.com',
@@ -303,7 +303,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.findById).mockResolvedValue(expiredOrder);
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.cancelOrder('order-1');
+      const result = await adminOrdersService.cancelOrder('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(409);
@@ -314,7 +314,7 @@ describe('admin-orders-service', () => {
 
     it('calls cancelOrder and returns updated order', async () => {
       const originalOrder: Order = {
-        id: 'order-1',
+        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         orderNumber: 'ORD-123',
         status: 'confirmed',
         email: 'user@example.com',
@@ -337,9 +337,9 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.cancelOrder).mockResolvedValue(true);
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.cancelOrder('order-1');
+      const result = await adminOrdersService.cancelOrder('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
       expect('data' in result).toBe(true);
-      expect(mockRepository.cancelOrder).toHaveBeenCalledWith('order-1');
+      expect(mockRepository.cancelOrder).toHaveBeenCalledWith('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
       if ('data' in result) {
         expect(result.data).toEqual(updatedOrder);
       }
@@ -347,7 +347,7 @@ describe('admin-orders-service', () => {
 
     it('returns error if cancelOrder returns false', async () => {
       const originalOrder: Order = {
-        id: 'order-1',
+        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         orderNumber: 'ORD-123',
         status: 'confirmed',
         email: 'user@example.com',
@@ -363,7 +363,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.cancelOrder).mockResolvedValue(false);
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.cancelOrder('order-1');
+      const result = await adminOrdersService.cancelOrder('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(500);
@@ -373,7 +373,7 @@ describe('admin-orders-service', () => {
 
     it('returns error if cannot load updated order', async () => {
       const originalOrder: Order = {
-        id: 'order-1',
+        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         orderNumber: 'ORD-123',
         status: 'confirmed',
         email: 'user@example.com',
@@ -391,7 +391,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.cancelOrder).mockResolvedValue(true);
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.cancelOrder('order-1');
+      const result = await adminOrdersService.cancelOrder('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(500);
@@ -403,7 +403,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.findById).mockRejectedValue(new Error('DB error'));
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.cancelOrder('order-1');
+      const result = await adminOrdersService.cancelOrder('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(500);
@@ -424,7 +424,7 @@ describe('admin-orders-service', () => {
 
     it('returns error if postgres not available', async () => {
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: null, redis: null, rabbitmq: null });
-      const result = await adminOrdersService.updateOrderTotalPrice('order-1', 1000);
+      const result = await adminOrdersService.updateOrderTotalPrice('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 1000);
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(503);
@@ -433,7 +433,7 @@ describe('admin-orders-service', () => {
 
     it('returns error if totalPrice is negative', async () => {
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
-      const result = await adminOrdersService.updateOrderTotalPrice('order-1', -100);
+      const result = await adminOrdersService.updateOrderTotalPrice('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', -100);
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(400);
@@ -445,7 +445,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.findById).mockResolvedValue(null);
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.updateOrderTotalPrice('nonexistent', 1000);
+      const result = await adminOrdersService.updateOrderTotalPrice('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 1000);
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(404);
@@ -455,7 +455,7 @@ describe('admin-orders-service', () => {
 
     it('calls updateTotalPrice and returns updated order', async () => {
       const originalOrder: Order = {
-        id: 'order-1',
+        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         orderNumber: 'ORD-123',
         status: 'confirmed',
         email: 'user@example.com',
@@ -478,9 +478,9 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.updateTotalPrice).mockResolvedValue(true);
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.updateOrderTotalPrice('order-1', 4500);
+      const result = await adminOrdersService.updateOrderTotalPrice('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 4500);
       expect('data' in result).toBe(true);
-      expect(mockRepository.updateTotalPrice).toHaveBeenCalledWith('order-1', 4500);
+      expect(mockRepository.updateTotalPrice).toHaveBeenCalledWith('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 4500);
       if ('data' in result) {
         expect(result.data).toEqual(updatedOrder);
       }
@@ -488,7 +488,7 @@ describe('admin-orders-service', () => {
 
     it('returns error if updateTotalPrice returns false', async () => {
       const originalOrder: Order = {
-        id: 'order-1',
+        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         orderNumber: 'ORD-123',
         status: 'confirmed',
         email: 'user@example.com',
@@ -504,7 +504,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.updateTotalPrice).mockResolvedValue(false);
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.updateOrderTotalPrice('order-1', 4500);
+      const result = await adminOrdersService.updateOrderTotalPrice('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 4500);
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(500);
@@ -514,7 +514,7 @@ describe('admin-orders-service', () => {
 
     it('returns error if cannot load updated order', async () => {
       const originalOrder: Order = {
-        id: 'order-1',
+        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         orderNumber: 'ORD-123',
         status: 'confirmed',
         email: 'user@example.com',
@@ -532,7 +532,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.updateTotalPrice).mockResolvedValue(true);
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.updateOrderTotalPrice('order-1', 4500);
+      const result = await adminOrdersService.updateOrderTotalPrice('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 4500);
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(500);
@@ -544,7 +544,7 @@ describe('admin-orders-service', () => {
       vi.mocked(mockRepository.findById).mockRejectedValue(new Error('DB error'));
       vi.mocked(dependenciesRuntime.getDependenciesRuntime).mockReturnValue({ postgres: {} as PostgresRuntime, redis: null, rabbitmq: null });
 
-      const result = await adminOrdersService.updateOrderTotalPrice('order-1', 4500);
+      const result = await adminOrdersService.updateOrderTotalPrice('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 4500);
       expect('error' in result).toBe(true);
       if ('error' in result) {
         expect(result.error?.statusCode).toBe(500);

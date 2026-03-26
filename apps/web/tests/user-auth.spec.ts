@@ -207,7 +207,7 @@ test.describe('User Authentication & Discount Flows', () => {
 
     // Verify user is shown in header with discount badge
     await expect(page.locator('text=Test User')).toBeVisible();
-    await expect(page.locator('span:has-text("-10%")')).toBeVisible();
+    await expect(page.locator('header span:has-text("-10%")')).toBeVisible();
 
     // Verify Sign Up/Sign In buttons are gone
     await expect(page.locator('button:has-text("Sign Up")')).not.toBeVisible();
@@ -267,7 +267,7 @@ test.describe('User Authentication & Discount Flows', () => {
 
     // Verify user is shown in header with discount badge
     await expect(page.locator('text=Existing User')).toBeVisible();
-    await expect(page.locator('span:has-text("-10%")')).toBeVisible();
+    await expect(page.locator('header span:has-text("-10%")')).toBeVisible();
   });
 
   test('Discount display on tickets', async ({ page }) => {
@@ -296,10 +296,11 @@ test.describe('User Authentication & Discount Flows', () => {
     await page.reload();
     await page.waitForLoadState('networkidle');
     await page.locator('a:has-text("View detail")').first().click();
+    await page.waitForURL('**/tickets/**');
     await page.waitForLoadState('networkidle');
 
-    // Verify discount badge is visible
-    await expect(page.locator('span:has-text("-10%")')).toBeVisible();
+    // Verify discount badge is visible (use first to avoid strict mode violation)
+    await expect(page.locator('span:has-text("-10%")').first()).toBeVisible();
 
     // Verify original price is strikethrough and discounted price is highlighted
     const originalPrice = page.locator('span.line-through').first();

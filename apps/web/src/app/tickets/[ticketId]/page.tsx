@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { TicketDetailClient } from '@/components/ticket-detail-client';
 import { getTicketById } from '@/services/tickets-service';
 
@@ -22,13 +21,6 @@ export default async function TicketDetailPage({
 
   return (
     <main className="container-app">
-      <Link
-        href="/tickets"
-        className="mb-6 inline-block text-sky-300 hover:text-sky-200"
-      >
-        ← Back to tickets
-      </Link>
-
       <section className="grid items-start gap-7 lg:grid-cols-[minmax(320px,480px)_1fr]">
         <div
           className="min-h-[420px] rounded-3xl border border-white/10 bg-slate-900 bg-cover bg-center"

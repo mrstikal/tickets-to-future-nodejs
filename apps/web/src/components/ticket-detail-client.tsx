@@ -21,7 +21,7 @@ export function TicketDetailClient({
   const [hold, setHold] = useState<Hold | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { isAuthenticated, discount } = useAuth();
+  const { discount } = useAuth();
 
   const ticketRef = useRef(ticket);
   const holdRef = useRef(hold);

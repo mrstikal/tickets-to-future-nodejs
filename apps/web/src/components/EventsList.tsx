@@ -32,7 +32,7 @@ export default function EventsList({ initialItems, initialMeta, periodStartYear,
   const [error, setError] = useState<string | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const { isAuthenticated, discount } = useAuth();
+  const { discount } = useAuth();
 
   const loadMore = useCallback(async () => {
     if (loading || !meta.hasMore) return;

@@ -120,29 +120,29 @@ export function createRouter() {
       const { listTicketTypesHandler } = await import('../controllers/ticket-types-controller');
       await listTicketTypesHandler(req, res);
     }, middleware: [requireAdmin] },
-    { method: 'GET', pattern: /^\/api\/v1\/admin\/ticket-types\/([^/]+)\/has-events$/, handler: async (req, res, params) => {
+    { method: 'GET', pattern: /^\/api\/v1\/admin\/ticket-types\/([^/]+)\/has-events$/, handler: async (req, res, id) => {
       const { checkTicketTypeHasEventsHandler } = await import('../controllers/ticket-types-controller');
-      await checkTicketTypeHasEventsHandler(req, res, params[0]);
+      await checkTicketTypeHasEventsHandler(req, res, id);
     }, middleware: [requireAdmin] },
-    { method: 'DELETE', pattern: /^\/api\/v1\/admin\/ticket-types\/([^/]+)\/force$/, handler: async (req, res, params) => {
+    { method: 'DELETE', pattern: /^\/api\/v1\/admin\/ticket-types\/([^/]+)\/force$/, handler: async (req, res, id) => {
       const { forceDeleteTicketTypeHandler } = await import('../controllers/ticket-types-controller');
-      await forceDeleteTicketTypeHandler(req, res, params[0]);
+      await forceDeleteTicketTypeHandler(req, res, id);
     }, middleware: [requireAdmin] },
-    { method: 'GET', pattern: /^\/api\/v1\/admin\/ticket-types\/([^/]+)$/, handler: async (req, res, params) => {
+    { method: 'GET', pattern: /^\/api\/v1\/admin\/ticket-types\/([^/]+)$/, handler: async (req, res, id) => {
       const { getTicketTypeHandler } = await import('../controllers/ticket-types-controller');
-      await getTicketTypeHandler(req, res, params[0]);
+      await getTicketTypeHandler(req, res, id);
     }, middleware: [requireAdmin] },
     { method: 'POST', pattern: '/api/v1/admin/ticket-types', handler: async (req, res) => {
       const { createTicketTypeHandler } = await import('../controllers/ticket-types-controller');
       await createTicketTypeHandler(req, res);
     }, middleware: [requireAdmin] },
-    { method: 'PUT', pattern: /^\/api\/v1\/admin\/ticket-types\/([^/]+)$/, handler: async (req, res, params) => {
+    { method: 'PUT', pattern: /^\/api\/v1\/admin\/ticket-types\/([^/]+)$/, handler: async (req, res, id) => {
       const { updateTicketTypeHandler } = await import('../controllers/ticket-types-controller');
-      await updateTicketTypeHandler(req, res, params[0]);
+      await updateTicketTypeHandler(req, res, id);
     }, middleware: [requireAdmin] },
-    { method: 'DELETE', pattern: /^\/api\/v1\/admin\/ticket-types\/([^/]+)$/, handler: async (req, res, params) => {
+    { method: 'DELETE', pattern: /^\/api\/v1\/admin\/ticket-types\/([^/]+)$/, handler: async (req, res, id) => {
       const { deleteTicketTypeHandler } = await import('../controllers/ticket-types-controller');
-      await deleteTicketTypeHandler(req, res, params[0]);
+      await deleteTicketTypeHandler(req, res, id);
     }, middleware: [requireAdmin] },
 
     // Admin ticket events routes
@@ -150,29 +150,29 @@ export function createRouter() {
       const { listTicketEventsHandler } = await import('../controllers/ticket-events-controller');
       await listTicketEventsHandler(req, res);
     }, middleware: [requireAdmin] },
-    { method: 'GET', pattern: /^\/api\/v1\/admin\/ticket-events\/([^/]+)\/has-holds-or-orders$/, handler: async (req, res, params) => {
+    { method: 'GET', pattern: /^\/api\/v1\/admin\/ticket-events\/([^/]+)\/has-holds-or-orders$/, handler: async (req, res, id) => {
       const { checkTicketEventHasHoldsOrOrdersHandler } = await import('../controllers/ticket-events-controller');
-      await checkTicketEventHasHoldsOrOrdersHandler(req, res, params[0]);
+      await checkTicketEventHasHoldsOrOrdersHandler(req, res, id);
     }, middleware: [requireAdmin] },
-    { method: 'DELETE', pattern: /^\/api\/v1\/admin\/ticket-events\/([^/]+)\/force$/, handler: async (req, res, params) => {
+    { method: 'DELETE', pattern: /^\/api\/v1\/admin\/ticket-events\/([^/]+)\/force$/, handler: async (req, res, id) => {
       const { forceDeleteTicketEventHandler } = await import('../controllers/ticket-events-controller');
-      await forceDeleteTicketEventHandler(req, res, params[0]);
+      await forceDeleteTicketEventHandler(req, res, id);
     }, middleware: [requireAdmin] },
-    { method: 'GET', pattern: /^\/api\/v1\/admin\/ticket-events\/([^/]+)$/, handler: async (req, res, params) => {
+    { method: 'GET', pattern: /^\/api\/v1\/admin\/ticket-events\/([^/]+)$/, handler: async (req, res, id) => {
       const { getTicketEventHandler } = await import('../controllers/ticket-events-controller');
-      await getTicketEventHandler(req, res, params[0]);
+      await getTicketEventHandler(req, res, id);
     }, middleware: [requireAdmin] },
     { method: 'POST', pattern: '/api/v1/admin/ticket-events', handler: async (req, res) => {
       const { createTicketEventHandler } = await import('../controllers/ticket-events-controller');
       await createTicketEventHandler(req, res);
     }, middleware: [requireAdmin] },
-    { method: 'PUT', pattern: /^\/api\/v1\/admin\/ticket-events\/([^/]+)$/, handler: async (req, res, params) => {
+    { method: 'PUT', pattern: /^\/api\/v1\/admin\/ticket-events\/([^/]+)$/, handler: async (req, res, id) => {
       const { updateTicketEventHandler } = await import('../controllers/ticket-events-controller');
-      await updateTicketEventHandler(req, res, params[0]);
+      await updateTicketEventHandler(req, res, id);
     }, middleware: [requireAdmin] },
-    { method: 'DELETE', pattern: /^\/api\/v1\/admin\/ticket-events\/([^/]+)$/, handler: async (req, res, params) => {
+    { method: 'DELETE', pattern: /^\/api\/v1\/admin\/ticket-events\/([^/]+)$/, handler: async (req, res, id) => {
       const { deleteTicketEventHandler } = await import('../controllers/ticket-events-controller');
-      await deleteTicketEventHandler(req, res, params[0]);
+      await deleteTicketEventHandler(req, res, id);
     }, middleware: [requireAdmin] },
 
     // Admin orders routes

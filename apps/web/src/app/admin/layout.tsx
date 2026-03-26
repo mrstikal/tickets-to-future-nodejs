@@ -9,8 +9,47 @@ type AdminLayoutProps = {
 };
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      </div>
+    );
+  }
+
+  // Not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      </div>
+    );
+  }
+
+  // Not admin
+  if (user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gray-900 flex flex-col justify-center items-center p-6">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold text-white mb-4">You do not have access to this page</h1>
+          <p className="text-gray-300 mb-8">
+            This section is intended for administrators only. If you believe this is an error, please contact support.
+          </p>
+          <Link
+            href="/"
+            className="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Back to Homepage
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Admin user – render normal layout
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Admin Header */}

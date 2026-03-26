@@ -133,8 +133,8 @@ export async function uploadImageAssetHandler(
 
       sendJson(response, 201, {
         id: created.id,
-        image_url: created.image_url,
-        local_image_path: created.local_image_path,
+        imageUrl: created.image_url,
+        localImagePath: created.local_image_path,
       });
     } catch (error) {
       // Clean up file on database error
